@@ -476,6 +476,10 @@ function superpwa_get_pwa_icons() {
 		);
 	}
 	
+	$superpwa_same_icon_splash = apply_filters('superpwa_same_icon_splash',false);
+	if($superpwa_same_icon_splash){
+		return $icons_array;
+	}
 	// Splash screen icon - Added since 1.3
 	if ( isset($superpwa_settings['splash_icon']) && ! empty( $superpwa_settings['splash_icon'] ) ) {
 		$icons_array[] = array(
@@ -710,7 +714,7 @@ function superpwa_add_manifest_variables($url) {
 			parse_str($parsedUrl['query'], $queryParams);
 		}
 	
-		if (!isset($queryParams['superpwa_mid'])) {
+		if (!isset($queryParams['superpwa_mid']) && $post && $post->ID ) {
 			$queryParams['superpwa_mid'] = $post->ID;
 		}
 		if (!isset($queryParams['v'])) {
