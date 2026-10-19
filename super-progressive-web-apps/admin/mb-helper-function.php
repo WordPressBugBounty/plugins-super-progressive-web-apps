@@ -68,32 +68,35 @@ function superpwa_send_feedback() {
         die( esc_html__( 'Unauthorised Access', 'super-progressive-web-apps' ) ); 
     }
     $text = '';
-    if( isset( $form['superpwa_disable_text'] ) && is_array( $form['superpwa_disable_text'] ) ) {
+    if( isset( $form['superpwa_disable_text'] ) ) {
         $text = implode( "\n\r", $form['superpwa_disable_text'] );
-    }
-
-    $reason = isset( $form['superpwa_disable_reason'] ) ? $form['superpwa_disable_reason'] : '';
-    $allowed_reasons = array( 'missing', 'technical', 'other' );
-    $text = trim( $text );
-    $word_count = ( '' === $text ) ? 0 : count( preg_split( '/\s+/', $text ) );
-
-    // Only email when reason is missing, technical, or other, and the comment has at least 3 words.
-    if ( ! in_array( $reason, $allowed_reasons, true ) || $word_count < 3 ) {
-        die();
     }
 
     $headers = array();
 
-    $from = isset( $form['superpwa_disable_from'] ) ? $form['superpwa_disable_from'] : '';
+    $from = ! empty( $form['superpwa_disable_from'] ) ? sanitize_email( $form['superpwa_disable_from'] ) : '';
     if( $from ) {
         $headers[] = "From: $from";
         $headers[] = "Reply-To: $from";
     }
 
-    $subject = $reason.' - Super Progressive Web Apps';
+    $subject = isset( $form['superpwa_disable_reason'] ) ? $form['superpwa_disable_reason'] : '(no reason given)';
 
-    if( $reason === 'technical' ){
-        $text = 'technical issue description: '.$text;
+    $subject = $subject.' - Super Progressive Web Apps';
+
+    if($subject == 'technical - Super Progressive Web Apps'){
+
+          $text = trim($text);
+
+          if(!empty($text)){
+
+            $text = 'technical issue description: '.$text;
+
+          }else{
+
+            $text = 'no description: '.$text;
+          }
+      
     }
 
     $success = wp_mail( 'team@magazine3.in', $subject, $text, $headers );
@@ -110,9 +113,9 @@ function superpwa_enqueue_makebetter_email_js(){
         return;
     }
 
-    wp_enqueue_script( 'superpwa-make-better-js', SUPERPWA_PATH_SRC . 'admin/make-better-admin.js', array( 'jquery' ), SUPERPWA_VERSION.'2',true);
+    wp_enqueue_script( 'superpwa-make-better-js', SUPERPWA_PATH_SRC . 'admin/make-better-admin.js', array( 'jquery' ), SUPERPWA_VERSION,true);
 
-    wp_enqueue_style( 'superpwa-make-better-css', SUPERPWA_PATH_SRC . 'admin/make-better-admin.css', false , SUPERPWA_VERSION);
+    wp_enqueue_style( 'superpwa-make-better-css', SUPERPWA_PATH_SRC . 'admin/make-better-admin.css', array( 'list-tables' ), SUPERPWA_VERSION);
 }
 
 add_filter('admin_footer', 'superpwa_add_deactivation_feedback_modal');
